@@ -226,9 +226,7 @@ abstract class AbstractReturnDelegate implements ReturnDelegate {
       final Optional<MediaType> optionalMediaType = ((Result) value).getMediaType();
       if (optionalMediaType.isPresent()) {
         mediaType = optionalMediaType.get();
-        if (mediaType.getCharset().isPresent()) {
-          existingEncoding = mediaType.getCharset().orElse(existingEncoding);
-        }
+        existingEncoding = mediaType.getCharset().orElse(existingEncoding);
       }
     }
 

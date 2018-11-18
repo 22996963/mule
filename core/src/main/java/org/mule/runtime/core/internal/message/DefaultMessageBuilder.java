@@ -28,6 +28,7 @@ import static org.mule.runtime.core.api.util.ObjectUtils.getLong;
 import static org.mule.runtime.core.api.util.ObjectUtils.getShort;
 import static org.mule.runtime.core.api.util.ObjectUtils.getString;
 import static org.mule.runtime.core.internal.context.DefaultMuleContext.currentMuleContext;
+
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.metadata.DataType;
@@ -44,6 +45,9 @@ import org.mule.runtime.core.internal.context.MuleContextWithRegistry;
 import org.mule.runtime.core.internal.message.InternalMessage.CollectionBuilder;
 import org.mule.runtime.core.internal.metadata.DefaultCollectionDataType;
 import org.mule.runtime.core.privileged.store.DeserializationPostInitialisable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -63,9 +67,6 @@ import java.util.function.Function;
 
 import javax.activation.DataHandler;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public final class DefaultMessageBuilder
     implements InternalMessage.Builder, InternalMessage.PayloadBuilder, InternalMessage.CollectionBuilder,
     InternalMessage.MapBuilder {
@@ -80,8 +81,8 @@ public final class DefaultMessageBuilder
 
   private ExceptionPayload exceptionPayload;
 
-  private Map<String, TypedValue<Serializable>> inboundProperties = new CaseInsensitiveMapWrapper<>();
-  private Map<String, TypedValue<Serializable>> outboundProperties = new CaseInsensitiveMapWrapper<>();
+  private final Map<String, TypedValue<Serializable>> inboundProperties = new CaseInsensitiveMapWrapper<>();
+  private final Map<String, TypedValue<Serializable>> outboundProperties = new CaseInsensitiveMapWrapper<>();
   private Map<String, DataHandler> inboundAttachments = new LinkedHashMap<>();
   private Map<String, DataHandler> outboundAttachments = new LinkedHashMap<>();
 
@@ -350,7 +351,7 @@ public final class DefaultMessageBuilder
   }
 
   private DataType resolveDataType(Object value) {
-    if (payload == null) {
+    if (payload == NULL_TYPED_VALUE || payload == null) {
       return DataType.fromObject(value);
     } else {
       return DataType.builder(payload.getDataType()).fromObject(value).build();
@@ -358,7 +359,7 @@ public final class DefaultMessageBuilder
   }
 
   private DataType resolveAttributesDataType(Object value) {
-    if (attributes == null) {
+    if (attributes == NULL_TYPED_VALUE || attributes == null) {
       return DataType.fromObject(value);
     } else {
       return DataType.builder(attributes.getDataType()).fromObject(value).build();
@@ -391,7 +392,7 @@ public final class DefaultMessageBuilder
     /**
      * If an exception occurs while processing this message an exception payload will be attached here
      */
-    private ExceptionPayload exceptionPayload;
+    private final ExceptionPayload exceptionPayload;
 
     /**
      * Collection of attachments that were attached to the incoming message
@@ -404,10 +405,10 @@ public final class DefaultMessageBuilder
     private transient Map<String, DataHandler> outboundAttachments = new LinkedHashMap<>();
 
     private transient TypedValue typedValue;
-    private TypedValue typedAttributes;
+    private final TypedValue typedAttributes;
 
-    private Map<String, TypedValue<Serializable>> inboundMap = new CaseInsensitiveMapWrapper<>();
-    private Map<String, TypedValue<Serializable>> outboundMap = new CaseInsensitiveMapWrapper<>();
+    private final Map<String, TypedValue<Serializable>> inboundMap = new CaseInsensitiveMapWrapper<>();
+    private final Map<String, TypedValue<Serializable>> outboundMap = new CaseInsensitiveMapWrapper<>();
 
     private MessageImplementation(TypedValue typedValue, TypedValue typedAttributes,
                                   Map<String, TypedValue<Serializable>> inboundProperties,
